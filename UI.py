@@ -25,24 +25,13 @@ tab_control.add(tab1, text='Mã hóa ')
 tab_control.add(tab2, text='Chữ ký số')
 
 #==============================================CÁC PHẦN DÙNG CHUNG======================================================
-#Tạo background cho 2 tab
-class Background:
-    def __init__(self, master):
-        self.master = master
-        self.canv = Canvas(master)
-        self.canv.place(x=0, y=0, width=1200, height=680)
-        self.img = ImageTk.PhotoImage(Image.open('background.jpg'))
-        self.canv.create_image(0, 0, image= self.img, anchor='nw')
-
-e1 = Background(tab1)
-e2 = Background(tab2)
 
 # Giao diện khóa công khai
 class PublicKey:
     def __init__(self, master):
         self.master = master
-        self.public_key_label1 = Label(master, text='Khóa công khai = {p, alpha, beta}', font=('TkDefaultFont', 11))
-        self.public_key_label1.place(x=10, y=25)
+        self.public_key_label1 = Label(master, text='Khóa công khai = {p, α, β}', font=('TkDefaultFont', 10))
+        self.public_key_label1.place(x=200, y=25)
         # số bit của p
         self.bitNum_label1 = Label(master, text='Số bit', font=('TkDefaultFont', 10))
         self.bitNum_label1.place(x=25, y=65)
@@ -54,24 +43,24 @@ class PublicKey:
         self.bitNum_option1.place(x=100, y=60)
         # p
         self.p_label1 = Label(master, text='p = ', font=('TkDefaultFont', 10))
-        self.p_label1.place(x=25, y=125)
+        self.p_label1.place(x=25, y=130)
 
         self.p_text1 = Text(master, width=52, height=6)
-        self.p_text1.place(x=80, y=95)
+        self.p_text1.place(x=90, y=95)
 
         # alpha
-        self.alpha_label1 = Label(master, text='alpha = ', font=('TkDefaultFont', 10))
+        self.alpha_label1 = Label(master, text='α = ', font=('TkDefaultFont', 10))
         self.alpha_label1.place(x=25, y=255)
 
         self.alpha_text1 = Text(master, width=52, height=6)
-        self.alpha_text1.place(x=80, y=215)
+        self.alpha_text1.place(x=90, y=215)
 
         # beta
-        self.beta_label1 = Label(master, text='beta = ', font=('TkDefaultFont', 10))
-        self.beta_label1.place(x=25, y=390)
+        self.beta_label1 = Label(master, text='β =\n(α^a modp)', font=('TkDefaultFont', 10))
+        self.beta_label1.place(x=5, y=370)
 
         self.beta_text1 = Text(master, width=52, height=6)
-        self.beta_text1.place(x=80, y=335)
+        self.beta_text1.place(x=90, y=335)
     def getp_text1(self):
         return self.p_text1
     def getalpha_text1(self):
@@ -86,14 +75,14 @@ class PrivateKey:
     def __init__(self, master):
         self.master = master
         # Khóa bí mật
-        self.private_key_label1 = Label(master, text='Khóa bí mật = {a}', font=('TkDefaultFont', 11))
-        self.private_key_label1.place(x=10, y=440)
+        self.private_key_label1 = Label(master, text='Khóa bí mật = {a}', font=('TkDefaultFont', 10))
+        self.private_key_label1.place(x=200, y=445)
         # a
         self.a_label1 = Label(master, text='a = ', font=('TkDefaultFont', 10))
         self.a_label1.place(x=25, y=510)
 
         self.a_text1 = Text(master, width=52, height=6)
-        self.a_text1.place(x=80, y=470)
+        self.a_text1.place(x=90, y=470)
     def geta_text1(self):
         return self.a_text1
 
@@ -155,20 +144,20 @@ class KeyCheck:
             if Prime.isPrime(p1, Prime.ATTEMPTS) == False:
                 messagebox.showerror("Error", "p phải là số nguyên tố!!")
             elif bf.check_primitive_root(alpha1, p1) == False:
-                messagebox.showerror("Error", "alpha phải là thành phần nguyên thủy của theo mod p!")
+                messagebox.showerror("Error", "α phải là thành phần nguyên thủy của theo mod p!")
             elif a1 < 1 or a1 > (p1 - 2):
-                messagebox.showerror("Error", "a phải nằm trong khoảng [1, p-2]!")
+                messagebox.showerror("Error", "a thỏa mãn 1 ≤ a ≤ p – 2!")
             elif beta1 != bf.modexp(alpha1, a1, p1):
-                messagebox.showerror("Error", "beta phải bằng alpha ^ a mod p!")
+                messagebox.showerror("Error", "β phải bằng α ^ a mod p!")
             else:
                 messagebox.showinfo('Correct', "Khóa hợp lệ")
         else:
             if Prime.isPrime(p1, Prime.ATTEMPTS) == False:
                 messagebox.showerror("Error", "p phải là số nguyên tố!")
             elif bf.check_primitive_root(alpha1, p1) == False:
-                messagebox.showerror("Error", "alpha phải là thành phần nguyên thủy của p!")
+                messagebox.showerror("Error", "α phải là thành phần nguyên thủy của p!")
             elif a1 < 1 or a1 > (p1 - 2):
-                messagebox.showerror("Error", "a phải có giá trị nằm trong khoảng [1, p-2]!")
+                messagebox.showerror("Error", "a thỏa mãn 1 ≤ a ≤ p – 2!")
             else:
                 beta1 = bf.modexp(alpha1, a1, p1)
                 self.beta_text1.insert(END, beta1)
@@ -187,11 +176,11 @@ key_generate_1 = KeyGenerate(tab1, public_key_1, private_key_1)
 key_check_1 = KeyCheck(tab1, public_key_1, private_key_1)
 
 # bản tin gốc
-original_message_label1 = Label(tab1, text='Bản rõ = ', font=('TkDefaultFont', 10))
-original_message_label1.place(x=530, y=120)
+original_message_label1 = Label(tab1, text='Bản rõ x = ', font=('TkDefaultFont', 10))
+original_message_label1.place(x=540, y=120)
 
 original_message_text1 = Text(tab1, width=65, height=6)
-original_message_text1.place(x=600, y=95)
+original_message_text1.place(x=650, y=95)
 
 
 # mã hóa bản tin gốc
@@ -221,14 +210,14 @@ def encrypt1():
 
 
 encrypt_button1 = Button(master=tab1,text='Mã hóa', bg='white', fg='black', command=encrypt1)
-encrypt_button1.place(x=810, y=210)
+encrypt_button1.place(x=820, y=210)
 
 # bản tin mã hóa
-cipher_message_label1 = Label(tab1, text='Bản mã = ',font=('TkDefaultFont', 10))
+cipher_message_label1 = Label(tab1, text='Bản mã =',font=('TkDefaultFont', 10))
 cipher_message_label1.place(x=530, y=320)
 
 cipher_message_text1 = Text(tab1, width=65, height=10)
-cipher_message_text1.place(x=600, y=250)
+cipher_message_text1.place(x=650, y=250)
 
 
 # giải mã bản tin
@@ -270,10 +259,10 @@ decrypt_button1.place(x=810, y=430)
 
 # bản tin giải mã
 decrypt_message_label1 = Label(tab1, text='Bản giải mã = ',font=('TkDefaultFont', 10))
-decrypt_message_label1.place(x=505, y=500)
+decrypt_message_label1.place(x=530, y=500)
 
 decrypt_message_text1 = Text(tab1, width=65, height=6)
-decrypt_message_text1.place(x=600, y=470)
+decrypt_message_text1.place(x=650, y=470)
 tab_control.pack(expand=1, fill='both', pady = 20)
 
 
