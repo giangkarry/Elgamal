@@ -1,6 +1,4 @@
 import random
-import math
-
 
 # Thuật toán Euclid tìm ước chung lớn nhất của 2 số a và b
 def gcd(a, b):
@@ -11,7 +9,6 @@ def gcd(a, b):
 		return a
 
 #Thuật toán Euclide mở rộng tìm nghịch đảo modulo: a^-1 mod b
-
 def modinv(a, b):
 	temp = b
 	x2 = 1

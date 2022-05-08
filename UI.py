@@ -5,7 +5,7 @@ import TextProcessing
 import BaseFunc as bf
 from tkinter import *
 from tkinter import ttk, messagebox
-
+from PIL import ImageTk, Image
 
 
 window = Tk()
@@ -16,131 +16,178 @@ window.resizable(height = None, width = None)
 
 
 # Tạo 2 tab
+s = ttk.Style()
+s.configure('TNotebook.Tab', font=('TkDefaultFont','10','bold'))
 tab_control = ttk.Notebook(window)
 tab1 = ttk.Frame(tab_control)
 tab2 = ttk.Frame(tab_control)
 tab_control.add(tab1, text='Mã hóa ')
-tab_control.add(tab2, text='Chữ ký')
+tab_control.add(tab2, text='Chữ ký số')
 
-#---------------------------Giao diện mã hóa---------------------------------
+#==============================================CÁC PHẦN DÙNG CHUNG======================================================
+#Tạo background cho 2 tab
+class Background:
+    def __init__(self, master):
+        self.master = master
+        self.canv = Canvas(master)
+        self.canv.place(x=0, y=0, width=1200, height=680)
+        self.img = ImageTk.PhotoImage(Image.open('background.jpg'))
+        self.canv.create_image(0, 0, image= self.img, anchor='nw')
 
-# title1 = Label(tab1, text='Mã hóa', font=('TkDefaultFont', 20))
-# title1.place(x=500, y=10)
+e1 = Background(tab1)
+e2 = Background(tab2)
 
-public_key_label1 = Label(tab1, text='Khóa công khai K\'',font=('TkDefaultFont', 10))
-public_key_label1.place(x=10, y=25)
+# Giao diện khóa công khai
+class PublicKey:
+    def __init__(self, master):
+        self.master = master
+        self.public_key_label1 = Label(master, text='Khóa công khai = {p, alpha, beta}', font=('TkDefaultFont', 11))
+        self.public_key_label1.place(x=10, y=25)
+        # số bit của p
+        self.bitNum_label1 = Label(master, text='Số bit', font=('TkDefaultFont', 10))
+        self.bitNum_label1.place(x=25, y=65)
+        # các lựa chọn cho số bit của p
+        self.option1 = [100, 500, 1000]
+        self.bitNum_value1 = IntVar()
+        self.bitNum_value1.set(self.option1[0])
+        self.bitNum_option1 = OptionMenu(master, self.bitNum_value1, *self.option1)
+        self.bitNum_option1.place(x=100, y=60)
+        # p
+        self.p_label1 = Label(master, text='p = ', font=('TkDefaultFont', 10))
+        self.p_label1.place(x=25, y=125)
 
-# số bit của p
-bitNum_label1 = Label(tab1, text='Số bit của p')
-bitNum_label1.place(x=25, y=65)
+        self.p_text1 = Text(master, width=52, height=6)
+        self.p_text1.place(x=80, y=95)
 
-# các lựa chọn cho số bit của p
-option1 = [100, 500, 1000]
-bitNum_value1 = IntVar()
-bitNum_value1.set(option1[0])
-bitNum_option1 = OptionMenu(tab1, bitNum_value1, *option1)
-bitNum_option1.place(x=100, y=60)
+        # alpha
+        self.alpha_label1 = Label(master, text='alpha = ', font=('TkDefaultFont', 10))
+        self.alpha_label1.place(x=25, y=255)
 
-# p
-p_label1 = Label(tab1, text='p = ')
-p_label1.place(x=25, y=125)
+        self.alpha_text1 = Text(master, width=52, height=6)
+        self.alpha_text1.place(x=80, y=215)
 
-p_text1 = Text(tab1, width=52, height=6)
-p_text1.place(x=80, y=95)
+        # beta
+        self.beta_label1 = Label(master, text='beta = ', font=('TkDefaultFont', 10))
+        self.beta_label1.place(x=25, y=390)
 
-# alpha
-alpha_label1 = Label(tab1, text='alpha = ')
-alpha_label1.place(x=25, y=255)
+        self.beta_text1 = Text(master, width=52, height=6)
+        self.beta_text1.place(x=80, y=335)
+    def getp_text1(self):
+        return self.p_text1
+    def getalpha_text1(self):
+        return self.alpha_text1
+    def getbeta_text1(self):
+        return self.beta_text1
+    def getbitNum_value1(self):
+        return self.bitNum_value1
 
-alpha_text1 = Text(tab1, width=52, height=6)
-alpha_text1.place(x=80, y=215)
+# Giao diện khóa bí mật
+class PrivateKey:
+    def __init__(self, master):
+        self.master = master
+        # Khóa bí mật
+        self.private_key_label1 = Label(master, text='Khóa bí mật = {a}', font=('TkDefaultFont', 11))
+        self.private_key_label1.place(x=10, y=440)
+        # a
+        self.a_label1 = Label(master, text='a = ', font=('TkDefaultFont', 10))
+        self.a_label1.place(x=25, y=510)
 
-# beta
-beta_label1 = Label(tab1, text='beta = ')
-beta_label1.place(x=25, y=390)
+        self.a_text1 = Text(master, width=52, height=6)
+        self.a_text1.place(x=80, y=470)
+    def geta_text1(self):
+        return self.a_text1
 
-beta_text1 = Text(tab1, width=52, height=6)
-beta_text1.place(x=80, y=335)
+# Tạo khóa
+class KeyGenerate:
+    def __init__(self, master, PublicKey, PrivateKey):
+        self.master = master
+        self.PublicKey = PublicKey
+        self.PrivateKey = PrivateKey
+        self.p_text1 = PublicKey.getp_text1()
+        self.alpha_text1 = PublicKey.getalpha_text1()
+        self.beta_text1 = PublicKey.getbeta_text1()
+        self.a_text1 = PrivateKey.geta_text1()
+        self.bitNum_value1 = PublicKey.getbitNum_value1()
+        self.keys_generate_button1 = Button(master, text='Tạo khóa\nngẫu nhiên', bg='white', fg='black',
+                                       command=self.keys_generate1)
+        self.keys_generate_button1.place(x=180, y=575)
 
-# Khóa bí mật
-private_key_label1 = Label(tab1, text='Khóa bí mật K\'\'',font=('TkDefaultFont', 10))
-private_key_label1.place(x=10, y=440)
-# a
-a_label1 = Label(tab1, text='a = ')
-a_label1.place(x=25, y=510)
+    def keys_generate1(self):
+        # xóa khóa cũ
+        cipher_message_text1.delete('1.0', END)
+        self.p_text1.delete('1.0', END)
+        self.alpha_text1.delete('1.0', END)
+        self.a_text1.delete('1.0', END)
+        self.beta_text1.delete('1.0', END)
 
-a_text1 = Text(tab1, width=52, height=6)
-a_text1.place(x=80, y=470)
-
-
-
-# tạo khóa
-def keys_generate1():
-    # xóa khóa cũ
-    cipher_message_text1.delete('1.0', END)
-    p_text1.delete('1.0', END)
-    alpha_text1.delete('1.0', END)
-    a_text1.delete('1.0', END)
-    beta_text1.delete('1.0', END)
-
-    # tạo khóa mới
-    p1 = Prime.generatePrime(bitNum_value1.get(), Prime.ATTEMPTS)
-    p_text1.insert(END, p1)
-    alpha1 = bf.primitive_root(p1)
-    alpha_text1.insert(END, alpha1)
-    a1 = random.randint(1, (p1 - 1) // 2)
-    a_text1.insert(END, a1)
-    beta1 = bf.modexp(alpha1, a1, p1)
-    beta_text1.insert(END, beta1)
-
-
-keys_generate_button1 = Button(tab1, text='Tạo khóa\nngẫu nhiên', bg='white', fg='black', command=keys_generate1)
-keys_generate_button1.place(x=180, y=598)
-
+        # tạo khóa mới
+        p1 = Prime.generatePrime(self.bitNum_value1.get(), Prime.ATTEMPTS)
+        self.p_text1.insert(END, p1)
+        alpha1 = bf.primitive_root(p1)
+        self.alpha_text1.insert(END, alpha1)
+        a1 = random.randint(1, (p1 - 1) // 2)
+        self.a_text1.insert(END, a1)
+        beta1 = bf.modexp(alpha1, a1, p1)
+        self.beta_text1.insert(END, beta1)
 
 # kiểm tra khóa đã thỏa mãn điều kiện hay chưa
-def keys_check1():
-    # lấy khóa
-    p1 = int(p_text1.get('1.0', "end-1c"))
-    alpha1 = int(alpha_text1.get('1.0', "end-1c"))
-    a1 = int(a_text1.get('1.0', 'end-1c'))
-    beta1 = beta_text1.get('1.0', 'end-1c')
-
-    if beta1:
-        beta1 = int(beta1)
-        # kiểm tra khóa
-        if Prime.isPrime(p1, Prime.ATTEMPTS) == False:
-            messagebox.showerror("Error", "p phải là số nguyên tố!!")
-        elif bf.check_primitive_root(alpha1, p1) == False:
-            messagebox.showerror("Error", "alpha phải là thành phần nguyên thủy của theo mod p!")
-        elif a1 < 1 or a1 > (p1 - 2):
-            messagebox.showerror("Error", "a phải nằm trong khoảng [1, p-2]!")
-        elif beta1 != bf.modexp(alpha1, a1, p1):
-            messagebox.showerror("Error", "beta phải bằng alpha ^ a mod p!")
+class KeyCheck:
+    def __init__(self, master, PublicKey, PrivateKey):
+        self.master = master
+        self.PublicKey = PublicKey
+        self.PrivateKey = PrivateKey
+        self.p_text1 = PublicKey.getp_text1()
+        self.alpha_text1 = PublicKey.getalpha_text1()
+        self.beta_text1 = PublicKey.getbeta_text1()
+        self.a_text1 = PrivateKey.geta_text1()
+        self.bitNum_value1 = PublicKey.getbitNum_value1()
+        self.keys_check_button1 = Button(master, text='Kiểm tra \n khóa', bg='white', fg='black', command=self.keys_check1)
+        self.keys_check_button1.place(x=280, y=575)
+    def keys_check1(self):
+        # lấy khóa
+        p1 = int(self.p_text1.get('1.0', "end-1c"))
+        alpha1 = int(self.alpha_text1.get('1.0', "end-1c"))
+        a1 = int(self.a_text1.get('1.0', 'end-1c'))
+        beta1 = self.beta_text1.get('1.0', 'end-1c')
+        if beta1:
+            beta1 = int(beta1)
+            # kiểm tra khóa
+            if Prime.isPrime(p1, Prime.ATTEMPTS) == False:
+                messagebox.showerror("Error", "p phải là số nguyên tố!!")
+            elif bf.check_primitive_root(alpha1, p1) == False:
+                messagebox.showerror("Error", "alpha phải là thành phần nguyên thủy của theo mod p!")
+            elif a1 < 1 or a1 > (p1 - 2):
+                messagebox.showerror("Error", "a phải nằm trong khoảng [1, p-2]!")
+            elif beta1 != bf.modexp(alpha1, a1, p1):
+                messagebox.showerror("Error", "beta phải bằng alpha ^ a mod p!")
+            else:
+                messagebox.showinfo('Correct', "Khóa hợp lệ")
         else:
-            messagebox.showinfo('Correct', "Khóa hợp lệ")
-    else:
-        if Prime.isPrime(p1, Prime.ATTEMPTS) == False:
-            messagebox.showerror("Error", "p phải là số nguyên tố!")
-        elif bf.check_primitive_root(alpha1, p1) == False:
-            messagebox.showerror("Error", "alpha phải là thành phần nguyên thủy của p!")
-        elif a1 < 1 or a1 > (p1 - 2):
-            messagebox.showerror("Error", "a phải có giá trị nằm trong khoảng [1, p-2]!")
-        else:
-            beta1 = bf.modexp(alpha1, a1, p1)
-            beta_text1.insert(END, beta1)
-            messagebox.showinfo('Correct', "Khóa hợp lệ")
+            if Prime.isPrime(p1, Prime.ATTEMPTS) == False:
+                messagebox.showerror("Error", "p phải là số nguyên tố!")
+            elif bf.check_primitive_root(alpha1, p1) == False:
+                messagebox.showerror("Error", "alpha phải là thành phần nguyên thủy của p!")
+            elif a1 < 1 or a1 > (p1 - 2):
+                messagebox.showerror("Error", "a phải có giá trị nằm trong khoảng [1, p-2]!")
+            else:
+                beta1 = bf.modexp(alpha1, a1, p1)
+                self.beta_text1.insert(END, beta1)
+                messagebox.showinfo('Correct', "Khóa hợp lệ")
 
+#============================================GIAO DIỆN MÃ HÓA==========================================================
 
-keys_check_button1 = Button(tab1,text='Kiểm tra  \n khóa', bg='white', fg='black', command=keys_check1)
-keys_check_button1.place(x=280, y=600)
+# khóa công khai
+public_key_1 = PublicKey(tab1)
+#khóa bí mật
+private_key_1 = PrivateKey(tab1)
+# tạo khóa
+key_generate_1 = KeyGenerate(tab1, public_key_1, private_key_1)
 
-# separator
-separator1 = ttk.Separator(tab1, orient='vertical')
-separator1.place(x=520, y=60, relheight=0.9)
+# kiểm tra khóa đã thỏa mãn điều kiện hay chưa
+key_check_1 = KeyCheck(tab1, public_key_1, private_key_1)
 
 # bản tin gốc
-original_message_label1 = Label(tab1, text='Bản tin')
+original_message_label1 = Label(tab1, text='Bản rõ = ', font=('TkDefaultFont', 10))
 original_message_label1.place(x=530, y=120)
 
 original_message_text1 = Text(tab1, width=65, height=6)
@@ -154,10 +201,9 @@ def encrypt1():
     decrypt_message_text1.delete('1.0', END)
 
     # lấy khóa
-    p1 = int(p_text1.get('1.0', "end-1c"))
-    alpha1 = int(alpha_text1.get('1.0', "end-1c"))
-    # x = int(a_text.get('1.0', "end-1c"))
-    beta1 = int(beta_text1.get('1.0', 'end-1c'))
+    p1 = int(public_key_1.getp_text1().get('1.0', "end-1c"))
+    alpha1 = int(public_key_1.getalpha_text1().get('1.0', "end-1c"))
+    beta1 = int(public_key_1.getbeta_text1().get('1.0', 'end-1c'))
 
     # kiểm tra khóa
     if ElGamal.check_publickey(p1, alpha1, beta1) == True:
@@ -178,7 +224,7 @@ encrypt_button1 = Button(master=tab1,text='Mã hóa', bg='white', fg='black', co
 encrypt_button1.place(x=810, y=210)
 
 # bản tin mã hóa
-cipher_message_label1 = Label(tab1, text='Bản mã')
+cipher_message_label1 = Label(tab1, text='Bản mã = ',font=('TkDefaultFont', 10))
 cipher_message_label1.place(x=530, y=320)
 
 cipher_message_text1 = Text(tab1, width=65, height=10)
@@ -191,10 +237,10 @@ def decrypt1():
     decrypt_message_text1.delete('1.0', END)
 
     # lấy khóa
-    p1 = int(p_text1.get('1.0', "end-1c"))
-    alpha1 = int(alpha_text1.get('1.0', "end-1c"))
-    a1 = int(a_text1.get('1.0', "end-1c"))
-    beta1 = int(beta_text1.get('1.0', 'end-1c'))
+    p1 = int(public_key_1.getp_text1().get('1.0', "end-1c"))
+    alpha1 = int(public_key_1.getalpha_text1().get('1.0', "end-1c"))
+    a1 = int(private_key_1.geta_text1().get('1.0', "end-1c"))
+    beta1 = int(public_key_1.getbeta_text1().get('1.0', 'end-1c'))
     privateKey1 = ElGamal.PrivateKey(a1)
     publicKey1 = ElGamal.PublicKey(p1, alpha1, beta1)
 
@@ -223,142 +269,27 @@ decrypt_button1 = Button(tab1,text='Giải mã', bg='white', fg='black', command
 decrypt_button1.place(x=810, y=430)
 
 # bản tin giải mã
-decrypt_message_label1 = Label(tab1, text='Bản tin')
-decrypt_message_label1.place(x=530, y=500)
+decrypt_message_label1 = Label(tab1, text='Bản giải mã = ',font=('TkDefaultFont', 10))
+decrypt_message_label1.place(x=505, y=500)
 
 decrypt_message_text1 = Text(tab1, width=65, height=6)
 decrypt_message_text1.place(x=600, y=470)
-tab_control.pack(expand=1, fill='both')
+tab_control.pack(expand=1, fill='both', pady = 20)
 
-#---------------------------Giao diện chữ ký---------------------------------
-# # title UI
-# title = Label(tab2, text='Chữ ký', font=('TkDefaultFont', 20))
-# title.place(x=500, y=10)
 
-# keys UI
-key_label = Label(tab2, text='Khóa công khai K\'\'', font=('TkDefaultFont', 10))
-key_label.place(x=10, y=25)
+#===============================================GIAO DIỆN CHỮ KÝ=======================================================
 
-# số bit của p
-bitNum_label = Label(tab2, text='Số bit của p')
-bitNum_label.place(x=25, y=65)
-
-# các lựa chọn cho số bit của p
-option = [100, 500, 1000]
-bitNum_value = IntVar()
-bitNum_value.set(option[0])
-bitNum_option = OptionMenu(tab2, bitNum_value, *option)
-bitNum_option.place(x=100, y=60)
-
-# p
-p_label = Label(tab2, text='p = ')
-p_label.place(x=25, y=125)
-
-p_text = Text(tab2, width=52, height=6)
-p_text.place(x=80, y=95)
-
-# alpha
-alpha_label = Label(tab2, text='alpha = ')
-alpha_label.place(x=25, y=255)
-
-alpha_text = Text(tab2, width=52, height=6)
-alpha_text.place(x=80, y=215)
-
-# beta
-beta_label = Label(tab2, text='beta = ')
-beta_label.place(x=25, y=390)
-
-beta_text = Text(tab2, width=52, height=6)
-beta_text.place(x=80, y=335)
-
+# khóa công khai
+public_key_2 = PublicKey(tab2)
 # Khóa bí mật
-private_key_label = Label(tab2, text='Khóa bí mật K\'',font=('TkDefaultFont', 10))
-private_key_label.place(x=10, y=440)
-# a
-a_label = Label(tab2, text='a = ')
-a_label.place(x=25, y=510)
-
-a_text = Text(tab2, width=52, height=6)
-a_text.place(x=80, y=470)
-
-
-
+private_key_2 = PrivateKey(tab2)
 # tạo khóa
-def keys_generate():
-    # xóa khóa cũ
-    cipher_message_text.delete('1.0', END)
-    p_text.delete('1.0', END)
-    alpha_text.delete('1.0', END)
-    a_text.delete('1.0', END)
-    beta_text.delete('1.0', END)
-
-    # tạo khóa mới
-    p = Prime.generatePrime(bitNum_value.get(), Prime.ATTEMPTS)
-    p_text.insert(END, p)
-    alpha = bf.primitive_root(p)
-    alpha_text.insert(END, alpha)
-    a = random.randint(1, (p - 1) // 2)
-    a_text.insert(END, a)
-    beta = bf.modexp(alpha, a, p)
-    beta_text.insert(END, beta)
-
-
-keys_generate_button = Button(tab2,text='Tạo khóa\nngẫu nhiên', bg='white', fg='black', command=keys_generate)
-keys_generate_button.place(x=180, y=598)
-
-
+key_generate_2 = KeyGenerate(tab2, public_key_2, private_key_2)
 # kiểm tra khóa đã thỏa mãn điều kiện hay chưa
-def keys_check():
-    # lấy khóa
-    p = int(p_text.get('1.0', "end-1c"))
-    alpha = int(alpha_text.get('1.0', "end-1c"))
-    a = int(a_text.get('1.0', 'end-1c'))
-    beta = beta_text.get('1.0', 'end-1c')
-
-
-    if beta:
-        beta = int(beta)
-        # kiểm tra khóa
-        if Prime.isPrime(p, Prime.ATTEMPTS) == False:
-            messagebox.showerror("Error", "p phải là số nguyên tố")
-        elif bf.check_primitive_root(alpha, p) == False:
-            messagebox.showerror("Error", "alpha phải là thành phần nguyên thủy của p")
-        elif a < 1 or a > (p - 2):
-            messagebox.showerror("Error", "a phải có giá trị nằm trong khoảng [1, p-2]")
-        elif beta != bf.modexp(alpha, a, p):
-            messagebox.showerror("Error", "beta phải bằng alpha ^ a mod p")
-        else:
-            messagebox.showinfo('Thông tin khóa', "Khóa của bạn hợp lệ")
-    else:
-        if Prime.isPrime(p, Prime.ATTEMPTS) == False:
-            messagebox.showerror("Error", "p phải là số nguyên tố")
-        elif bf.check_primitive_root(alpha, p) == False:
-            messagebox.showerror("Error", "alpha phải là thành phần nguyên thủy của p")
-        elif a < 1 or a > (p - 2):
-            messagebox.showerror("Error", "a phải có giá trị nằm trong khoảng [1, p-2]")
-        else:
-            beta = bf.modexp(alpha, a, p)
-            beta_text.insert(END, beta)
-            messagebox.showinfo('Thông tin khóa', "Khóa của bạn hợp lệ")
-
-
-keys_check_button = Button(tab2, text='Kiểm tra   \nkhóa', bg='white', fg='black', command=keys_check)
-keys_check_button.place(x=280, y=600)
-
-# separator
-# separator = ttk.Separator(tab2, orient='horizontal')
-# separator.place(x=500, y=320, relwidth=0.7)
-#
-# separator
-separator = ttk.Separator(tab2, orient='vertical')
-separator.place(x=520, y=40, relheight=1)
-
-# keys UI
-# signature_label = Label(tab2, text='Ký văn bản')
-# signature_label.place(x=520, y=60)
+key_check_2 = KeyCheck(tab2, public_key_2, private_key_2)
 
 # bản tin gốc
-original_message_label = Label(tab2, text='Văn bản')
+original_message_label = Label(tab2, text='Văn bản', font=('TkDefaultFont', 10))
 original_message_label.place(x=530, y=120)
 
 original_message_text = Text(tab2, width=65, height=8)
@@ -366,15 +297,15 @@ original_message_text.place(x=600, y=95)
 
 
 # ký văn bản
-def encrypt():
+def sign():
     # xóa chữ ký cũ
-    cipher_message_text.delete('1.0', END)
+    sign_message_text.delete('1.0', END)
 
     # lấy khóa
-    p = int(p_text.get('1.0', "end-1c"))  # Prime number
-    alpha = int(alpha_text.get('1.0', "end-1c"))  # Primitive root
-    a = int(a_text.get('1.0', "end-1c"))  # Random
-    beta = int(beta_text.get('1.0', 'end-1c'))
+    p = int(public_key_2.getp_text1().get('1.0', "end-1c"))  # Prime number
+    alpha = int(public_key_2.getalpha_text1().get('1.0', "end-1c"))  # Primitive root
+    a = int(private_key_2.geta_text1().get('1.0', "end-1c"))  # Random
+    beta = int(public_key_2.getbeta_text1().get('1.0', 'end-1c'))
 
     # kiểm tra khóa
     if ElGamal.check_keys(p, alpha, a, beta) == True:
@@ -388,35 +319,35 @@ def encrypt():
         # ký và hiển thị chữ ký
         e = ElGamal.sign_mess(message, privateKey, publicKey, TextProcessing.ALPHABET)
         signature_message = 'y: ' + ElGamal.merge_gam(e) + 'ơ: ' + ElGamal.merge_sig(e)
-        cipher_message_text.insert(END, signature_message)
+        sign_message_text.insert(END, signature_message)
     else:
         messagebox.showerror("Error", "Khoá không hợp lệ")
 
 
-encrypt_button = Button(tab2,text='Thực hiện ký', bg='white', fg='black', command=encrypt)
-encrypt_button.place(x=810, y=275)
+sign_button = Button(tab2,text='Thực hiện ký', bg='white', fg='black', command=sign)
+sign_button.place(x=810, y=275)
 
 # bản tin
-cipher_message_label = Label(tab2, text='Chữ ký')
-cipher_message_label.place(x=530, y=400)
+sign_message_label = Label(tab2, text='Chữ ký', font=('TkDefaultFont', 10))
+sign_message_label.place(x=530, y=400)
 
-cipher_message_text = Text(tab2, width=65, height=12)
-cipher_message_text.place(x=600, y=350)
+sign_message_text = Text(tab2, width=65, height=12)
+sign_message_text.place(x=600, y=350)
 
 
 # Kiểm tra chữ ký
-def decrypt():
+def verify():
     # lấy khóa
-    p = int(p_text.get('1.0', "end-1c"))
-    alpha = int(alpha_text.get('1.0', "end-1c"))
-    beta = int(beta_text.get('1.0', 'end-1c'))
+    p = int(public_key_2.getp_text1().get('1.0', "end-1c"))
+    alpha = int(public_key_2.getalpha_text1().get('1.0', "end-1c"))
+    beta = int(public_key_2.getbeta_text1().get('1.0', 'end-1c'))
     publicKey = ElGamal.PublicKey(p, alpha, beta)
 
     # kiểm tra khóa
     if ElGamal.check_publickey(p, alpha, beta) == True:
         # lấy văn bản và chữ ký
         message = original_message_text.get('1.0', "end-1c")
-        signature = cipher_message_text.get('1.0', "end-1c")
+        signature = sign_message_text.get('1.0', "end-1c")
         print(message)
         print(signature)
 
@@ -432,11 +363,11 @@ def decrypt():
         else:
             messagebox.showerror("Chữ ký", "Chữ ký không được xác thực")
     else:
-        messagebox.showerror("Error", "Khóa  không hợp lệ!")
+        messagebox.showerror("Error", "Khóa không hợp lệ!")
 
 
-decrypt_button = Button(tab2,text='Chứng thực\nchữ ký', bg='white', fg='black', command=decrypt)
-decrypt_button.place(x=800, y=600)
+verify_button = Button(tab2,text='Chứng thực\nchữ ký', bg='white', fg='black', command=verify)
+verify_button.place(x=800, y=575)
 tab_control.pack(expand=2, fill='both')
 
 

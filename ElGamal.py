@@ -5,7 +5,7 @@ import BaseFunc as bf
 import TextProcessing as text
 
 
-#------------------------------TẠO KHÓA cho cả hệ mật và chữ ký-------------------------
+#========================================TẠO KHÓA cho cả hệ mật và chữ ký===============================================
 # Khóa bí mật
 class PrivateKey:
 	def __init__(self, a):
@@ -29,14 +29,14 @@ class PublicKey:
 	def getbeta(self):
 		return self.beta
 
-# tạo khóa công khai K1 (p, alpha, beta) và khóa bí mật K2 (a)
+# tạo khóa công khai {p, alpha, beta} và khóa bí mật a
 
-#def generate_keys(numBits=256):
 def generate_keys(bits):
 	p = Prime.generatePrime(bits, Prime.ATTEMPTS)
 	alpha = bf.primitive_root(p)
 	a = random.randint(1, (p - 1))
 	beta = bf.modexp(alpha, a, p)
+
 	privateKey = PrivateKey(a)
 	publicKey = PublicKey(p, alpha, beta)
 
@@ -58,10 +58,9 @@ def check_publickey(p, alpha, beta):
 
 # kiểm tra khóa công khai và khóa bí mật
 def check_keys(p, alpha, a, beta):
-	#return True if (Prime.isPrime(p, Prime.ATTEMPTS) and bf.check_primitive_root(alpha, p) and a >=1 and a <= p-2 and beta == bf.modexp(alpha, a, p)) else False
 	return True if(check_publickey(p, alpha, beta) and a >=1 and a <= p-2 and beta == bf.modexp(alpha, a, p)) else False
 
-#-----------------------------------------MÃ HÓA-------------------------------------------------------------
+#===========================================MÃ HÓA======================================================================
 # Bản mã (y1, y2)
 class CypherNum:
 	def __init__(self, y1, y2):
@@ -75,10 +74,8 @@ class CypherNum:
 		return self.y2
 
 # trả về y1
-#def merge_y1(encryptNums):
 def merge_y1(CypherNum):
 	y1 = ""
-	#for encryptUnit in encryptNums:
 	for encryptUnit in CypherNum:
 		y1 += str(encryptUnit.gety1())
 		y1 += "\n"
@@ -103,8 +100,6 @@ def encrypt_num(x, publicKey):
 
 # chia plaintext thành các đoạn có giá trị < p rồi mã hóa
 def encrypt_mess(plainText, publicKey, alphabet):
-	# chia plainText thành các đoạn có giá trị < p
-	unitText = []
 	unitText = text.splitText(plainText, text.unitLength(alphabet, publicKey.getp()))
 	cypherNum = []
 	# mã hóa từng đoạn 
@@ -113,11 +108,11 @@ def encrypt_mess(plainText, publicKey, alphabet):
 		x = text.textToNum(unit, alphabet)
 		# mã hóa đoạn tin có giá trị int = x
 		encrypt = encrypt_num(x, publicKey)
-		cypherNum.append(encrypt)	#int
-	return cypherNum		#int
+		cypherNum.append(encrypt)
+	return cypherNum
 
 
-#----------------------------------------GIẢI MÃ-----------------------------
+#==========================================GIẢI MÃ======================================================================
 # giải mã 1 cặp mã hóa
 def decrypt_unit(unitCypher, privateKey, publicKey, alphabet):
 	p = publicKey.getp()
@@ -138,7 +133,7 @@ def decrypt_mess(cypherNum, privateKey, publicKey, alphabet):
 	return plainText
 
 
-#----------------------------TẠO CHỮ KÝ--------------------------------------------
+#========================================TẠO CHỮ KÝ=====================================================================
 
 # Chữ ký (gamma, sigma)
 class SigNum:
@@ -153,10 +148,8 @@ class SigNum:
 		return self.sig
 
 #  trả về gamma
-# #def merge_y1(encryptNums):
 def merge_gam(SigNum):
 	gam = ""
-	#for sigUnit in encryptNums:
 	for sigUnit in SigNum:
 		gam += str(sigUnit.getgam())
 		gam += "\n"
@@ -180,7 +173,7 @@ def sign_num(x, privateKey, publicKey, alphabet):
 		if bf.gcd(p - 1, k) == 1:
 			break
 	# hàm băm hx = x
-	hx = x#text.textToNum(x, alphabet)
+	hx = x
 	gam = bf.modexp(alpha, k, p)
 	# sig = (h(x) - a * lmd) * k ^ -1 mod(p - 1)
 	inv_k = bf.modinv(k, p - 1)
@@ -189,8 +182,6 @@ def sign_num(x, privateKey, publicKey, alphabet):
 
 # chia message thành các đoạn có giá trị < p rồi ký
 def sign_mess(message, privateKey, publicKey, alphabet):
-	# chia message thành các đoạn có giá trị < p
-	unitText = []
 	unitText = text.splitText(message, text.unitLength(alphabet, publicKey.getp()))
 	signNum = []
 	# ký từng đoạn
@@ -199,11 +190,11 @@ def sign_mess(message, privateKey, publicKey, alphabet):
 		x = text.textToNum(unit, alphabet)
 		# ký đoạn tin có giá trị int = x
 		sign = sign_num(x, privateKey, publicKey, alphabet)
-		signNum.append(sign)	#int
-	return signNum		#int
+		signNum.append(sign)
+	return signNum
 
 
-##------------------------------CHỨNG THỰC CHỮ KÝ------------------------------------------------
+#=====================================CHỨNG THỰC CHỮ KÝ==============================================================
 
 # chứng thực với các cặp chữ ký
 def verify_message(SignNum, message, publicKey, alphabet):
@@ -216,5 +207,5 @@ def verify_message(SignNum, message, publicKey, alphabet):
 	# β^γ.γ^δ  ≡ αlpha^h(x) (mod p)
 	left = (bf.modexp(beta, gam, p) * bf.modexp(gam, sig, p)) % p
 	right = bf.modexp(alpha, hx, p)
-	return True #if left == right else False
+	return True
 
