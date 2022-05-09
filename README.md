@@ -35,7 +35,7 @@ _Tham khảo_
 
     c. **check_keys(p, alpha, a, beta)**: kiểm tra khóa
 
-      - kiểm tra p thỏa mãn tính nguyên tố với k lần check hàm **isPrime**
+      - kiểm tra p thỏa mãn tính nguyên tố
       - Kiểm tra alpha là thành phần nguyên thủy theo mod p
       - Kiểm tra beta < p
       - Kiểm tra a thuộc [1, p-2]
@@ -43,10 +43,10 @@ _Tham khảo_
 2. **Mã hóa**
 
     a. **encrypt_num(x, publicKey)**: mã hóa đoạn tin có giá trị int = x
-
+    
     b. **encrypt_mess(plainText, publicKey, alphabet)**: 
-
-    - chia phainText thành các đoạn có giá trị < p -> mã hóa từng đoạn
+    
+    - chia phainText thành các đoạn có giá trị lớn nhất < p -> mã hóa từng đoạn
 
     - trả về bản mã hóa
  
@@ -62,7 +62,7 @@ _Tham khảo_
 
     b. **sign_mess(message, privateKey, publicKey, alphabet)**
 
-      - chia message thành các đoạn có giá trị < p -> ký từng đoạn
+      - chia message thành các đoạn có giá trị lớn nhất < p -> ký từng đoạn
 
       - trả về bản chữ ký
     
