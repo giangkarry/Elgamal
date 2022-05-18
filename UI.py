@@ -131,7 +131,7 @@ class KeyCheck:
         self.a_text1 = PrivateKey.geta_text1()
         self.bitNum_value1 = PublicKey.getbitNum_value1()
         self.keys_check_button1 = Button(master, text='Kiểm tra \n khóa', bg='white', fg='black', command=self.keys_check1)
-        self.keys_check_button1.place(x=280, y=575)
+        self.keys_check_button1.place(width=75,x=273, y=575)
     def keys_check1(self):
         # lấy khóa
         p1 = int(self.p_text1.get('1.0', "end-1c"))
@@ -162,6 +162,7 @@ class KeyCheck:
                 beta1 = bf.modexp(alpha1, a1, p1)
                 self.beta_text1.insert(END, beta1)
                 messagebox.showinfo('Correct', "Khóa hợp lệ")
+
 
 #============================================GIAO DIỆN MÃ HÓA==========================================================
 
@@ -263,6 +264,19 @@ decrypt_message_label1.place(x=530, y=500)
 
 decrypt_message_text1 = Text(tab1, width=65, height=6)
 decrypt_message_text1.place(x=650, y=470)
+
+#Tạo mới
+def new_key1():
+    cipher_message_text1.delete('1.0', 'end')
+    decrypt_message_text1.delete('1.0', END)
+    original_message_text1.delete('1.0', END)
+    public_key_1.getp_text1().delete('1.0', END)
+    public_key_1.getalpha_text1().delete('1.0', END)
+    public_key_1.getbeta_text1().delete('1.0', END)
+    private_key_1.geta_text1().delete('1.0', END)
+
+new_key_button1 = Button(tab1, text='Tạo mới', bg='white', fg='black',command=new_key1)
+new_key_button1.place(width=75, heigh=42, x=370, y=575)
 tab_control.pack(expand=1, fill='both', pady = 20)
 
 
@@ -343,7 +357,13 @@ def verify():
         y = signature.split('ơ')
         gam = y[0][4:-1]
         sig = y[1][2:-1]
-        sig_num = ElGamal.SigNum(int(gam), int(sig))
+        gam = gam.split('\n')
+        sig = sig.split('\n')
+        sig_num = []
+        for i in range(len(gam)):
+            unitSigNum = ElGamal.SigNum(int(gam[i]), int(sig[i]))
+            sig_num.append(unitSigNum)
+        #sig_num = ElGamal.SigNum(int(gam), int(sig))
 
         # Xác thực chữ ký và hiển thị kết quả xác thực
         is_verified = ElGamal.verify_message(sig_num, message, publicKey, TextProcessing.ALPHABET)
@@ -357,6 +377,17 @@ def verify():
 
 verify_button = Button(tab2,text='Chứng thực\nchữ ký', bg='white', fg='black', command=verify)
 verify_button.place(x=800, y=575)
+#Tạo mới
+def new_key2():
+    sign_message_text.delete('1.0', END)
+    original_message_text.delete('1.0', END)
+    public_key_2.getp_text1().delete('1.0', END)
+    public_key_2.getalpha_text1().delete('1.0', END)
+    public_key_2.getbeta_text1().delete('1.0', END)
+    private_key_2.geta_text1().delete('1.0', END)
+
+new_key_button2 = Button(tab2, text='Tạo mới', bg='white', fg='black',command=new_key2)
+new_key_button2.place(width=75, heigh=42, x=370, y=575)
 tab_control.pack(expand=2, fill='both')
 
 

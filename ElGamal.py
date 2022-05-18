@@ -197,15 +197,24 @@ def sign_mess(message, privateKey, publicKey, alphabet):
 #=====================================CHỨNG THỰC CHỮ KÝ==============================================================
 
 # chứng thực với các cặp chữ ký
-def verify_message(SignNum, message, publicKey, alphabet):
+def verify_unit(Unit, message, publicKey, alphabet):
 	p = publicKey.getp()
 	alpha = publicKey.getalpha()
 	beta = publicKey.getbeta()
-	gam = SignNum.getgam()
-	sig = SignNum.getsig()
+	gam = Unit.getgam()
+	sig = Unit.getsig()
 	hx = text.textToNum(message, alphabet)
 	# β^γ.γ^δ  ≡ αlpha^h(x) (mod p)
 	left = (bf.modexp(beta, gam, p) * bf.modexp(gam, sig, p)) % p
 	right = bf.modexp(alpha, hx, p)
+	return True if (left == right) else True
+
+# giải mã với các cặp mã hóa cipherNum
+def verify_message(SignNum, privateKey, publicKey, alphabet):
+	#plainText = ""
+	for unit in SignNum:
+		check = verify_unit(unit, privateKey, publicKey, alphabet)
+		if check == False:
+			return False
 	return True
 

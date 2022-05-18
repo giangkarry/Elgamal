@@ -1,6 +1,6 @@
 ALPHABET = ".,:;!?-'()[]&+=<>/*_$#@^abcdefghijklmnopqrstuvwxyzáàảãạăắằẳẵặâấầẩẫậéèẻẽẹêếềểễệóòỏõọôốồổỗộơớờởỡợíìỉĩịúùủũụưứừửữựýỳỷỹỵđ 0123456789"
 
-# Chuyển kí tự sáng số tương ứng với vị trí trong bảng chữ cái
+# Chuyển kí tự sang số tương ứng với vị trí trong bảng chữ cái
 def charToInt(char, alphabet):
 	return alphabet.find(char)
 
@@ -37,8 +37,7 @@ def numToText(num, alphabet):
 	text = invStr(text)
 	return text
 
-
-# tìm độ dài tối đa (số ký tự) cho 1 đoạn tin để giá trị của nó < p(bản tin thuộc Zp)
+# tìm độ dài tối đa cho 1 đoạn tin để giá trị của nó < p(bản tin thuộc Zp)
 def unitLength(alphabet, p):
 	alp = len(alphabet)
 	result = 0
